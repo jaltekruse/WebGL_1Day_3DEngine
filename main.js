@@ -1000,25 +1000,43 @@ class PointLight extends Light {
   }
 }
 
-var moveLeft, moveRight, jump;
+var moveLeft, moveRight, jumping, flying;
 var yVelocity = 0;
 var xVelocity = 0;
 var character;
+var arms = [];
+// 2D array, storing x and y offset from neutral in middle of body
+var armPos = [[0.0, 0.0], [0.0, 0.0]];
+var armSwing = 0.0;
 var groundFriction = 0.05;
 var gravity = 0.1;
 function keyPush(evt) {
   switch (evt.keyCode) {
     case 37:
-      xVelocity = -0.4;
-      moveLeft = true;
+      if (!moveLeft) {
+        xVelocity = -0.4;
+        armSwing = 0.05;
+        moveLeft = true;
+      }
       break;
     case 32:
-      jump = true;
-      yVelocity = 1.5;
+      // second jump, puff up and start flying
+      if (jumping) {
+        character.Scale(1.8, 1.8, 1.8);
+        gravity = 0.05;
+        yVelocity = 0.7;
+        flying = true;
+      } else {
+        yVelocity = 1.5;
+      }
+      jumping = true;
       break;
     case 39:
-      xVelocity = 0.4;
-      moveRight = true;
+      if (!moveRight) {
+        xVelocity = 0.4;
+        armSwing = 0.05;
+        moveRight = true;
+      }
       break;
   }
 }
@@ -1476,6 +1494,20 @@ class LightPrepassDemo {
         });
     character.SetPosition(x * 4, 0, -y * 4);
     this._meshes.push(character);
+
+    arms[0] = this._renderer.CreateMeshInstance(
+        new Box(),
+        {
+          shader: 'default',
+          params: {
+            diffuseTexture: 'test-diffuse',
+            normalTexture: 'test-normal',
+          }
+        });
+    arms[0].SetPosition(x * 4 + 0.2, 0, -y * 4 + 0.9);
+    arms[0].Scale(0.5, 0.5, 0.5);
+    this._meshes.push(arms[0]);
+
   }
 
   _RAF() {
@@ -1493,33 +1525,64 @@ class LightPrepassDemo {
   _Step(timeElapsed) {
     const timeElapsedS = timeElapsed * 0.001;
 
-    for (let m of this._meshes) {
-      //m.RotateY(timeElapsedS);
-      const currPos = m._position;
-      currPos[0] += xVelocity;
+    let m = character;
+    //m.RotateY(timeElapsedS);
+    const currPos = m._position;
+    currPos[0] += xVelocity;
 
-      // ground friction
-      if (!moveLeft && xVelocity < 0 ) {
-          xVelocity += groundFriction;
-          if (xVelocity > 0) xVelocity = 0;
-      }
-      if (!moveRight && xVelocity > 0 ) {
-        xVelocity -= groundFriction;
-        if (xVelocity < 0) xVelocity = 0;
-      }
-
-      if (yVelocity != 0) {
-          currPos[1] += yVelocity;
-          yVelocity -= gravity;
-      }
-      // hit the ground after jumping?
-      if (yVelocity != 0 && currPos[1] < 0) {
-          currPos[1] = 0;
-          yVelocity = 0;
-      }
-
-      m.SetPosition(currPos[0], currPos[1], currPos[2]);
+    // ground friction
+    if (!moveLeft && xVelocity < 0 ) {
+        xVelocity += groundFriction;
+        if (xVelocity > 0) {
+          armSwing = 0;
+          xVelocity = 0;
+        }
     }
+    if (!moveRight && xVelocity > 0 ) {
+      xVelocity -= groundFriction;
+      if (xVelocity < 0) {
+        armSwing = 0;
+        xVelocity = 0;
+      }
+    }
+
+    if (yVelocity != 0) {
+        currPos[1] += yVelocity;
+        yVelocity -= gravity;
+    }
+    // hit the ground after jumping?
+    if (yVelocity != 0 && currPos[1] < 0) {
+        currPos[1] = 0;
+        yVelocity = 0;
+        character.Scale(1.0, 1.0, 1.0);
+        jumping = false;
+        flying = false;
+        gravity = 0.1;
+    }
+
+    if (moveLeft || moveRight) {
+      armPos[0][0] += armSwing;
+
+      if (armPos[0][0] > 0.2) {
+        armSwing = -0.05
+      }
+      else if (armPos[0][0] < -0.2) {
+        armSwing = 0.05
+      }
+    }
+
+    // arms animation
+    arms[0].SetPosition(
+        currPos[0] + 0.0 + armPos[0][0],
+        currPos[1] + 0.3 + armPos[0][1],
+        currPos[2] +
+        (flying ? 1.8 : 0.9)
+    );
+    if (moveLeft || moveRight) {
+
+    }
+
+    m.SetPosition(currPos[0], currPos[1], currPos[2]);
 
     for (let l of this._lights) {
       l.acc += timeElapsed * 0.001 * l.accSpeed;
