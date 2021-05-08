@@ -1000,7 +1000,7 @@ class PointLight extends Light {
   }
 }
 
-var moveLeft, moveRight, jumping, flying;
+var moveLeft, moveRight, jumping, flying, ducking;
 var yVelocity = 0;
 var xVelocity = 0;
 var character;
@@ -1013,7 +1013,7 @@ var gravity = 0.1;
 function keyPush(evt) {
   switch (evt.keyCode) {
     case 37:
-      if (!moveLeft) {
+      if (!moveLeft && !ducking) {
         xVelocity = -0.4;
         armSwing = 0.05;
         moveLeft = true;
@@ -1032,10 +1032,18 @@ function keyPush(evt) {
       jumping = true;
       break;
     case 39:
-      if (!moveRight) {
+      if (!moveRight && !ducking) {
         xVelocity = 0.4;
         armSwing = 0.05;
         moveRight = true;
+      }
+      break;
+    case 40:
+      if (!jumping && !flying && !moveLeft && !moveRight && !ducking) {
+        ducking = true;
+        character.Scale(1.0, 0.3, 1.0);
+        // TODO - make it so this doesn't impact the camera
+        character.SetPosition(character._position[0], character._position[1] - 0.5, character._position[2]);
       }
       break;
   }
@@ -1051,6 +1059,13 @@ function keyUp(evt) {
       break;
     case 39:
       moveRight = false;
+      break;
+    case 40:
+      if (!jumping && !flying) {
+        ducking = false;
+        character.Scale(1.0, 1.0, 1.0);
+        character.SetPosition(character._position[0], character._position[1] + 0.5, character._position[2]);
+      }
       break;
   }
 }
