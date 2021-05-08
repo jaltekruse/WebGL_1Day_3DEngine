@@ -765,6 +765,7 @@ class Box extends Mesh {
       0.0, 0.0, -1.0,
     ];
 
+    /*
     const faceColors = [
       [1.0,  1.0,  1.0,  1.0],    // Front face: white
       [1.0,  0.0,  0.0,  1.0],    // Back face: red
@@ -772,6 +773,16 @@ class Box extends Mesh {
       [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
       [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
       [1.0,  0.0,  1.0,  1.0],    // Left face: purple
+    ];
+    */
+
+    const faceColors = [
+      [1.0,  1.0,  1.0,  1.0],    // Front face: white
+      [1.0,  1.0,  1.0,  1.0],    // Back face: red
+      [1.0,  1.0,  1.0,  1.0],    // Top face: green
+      [1.0,  1.0,  1.0,  1.0],    // Bottom face: blue
+      [1.0,  1.0,  1.0,  1.0],    // Right face: yellow
+      [1.0,  1.0,  1.0,  1.0],    // Left face: purple
     ];
 
     // Convert the array of colors into a table for all the vertices.
@@ -989,6 +1000,42 @@ class PointLight extends Light {
   }
 }
 
+var moveLeft, moveRight, jump;
+var yVelocity = 0;
+var xVelocity = 0;
+var character;
+var groundFriction = 0.05;
+var gravity = 0.1;
+function keyPush(evt) {
+  switch (evt.keyCode) {
+    case 37:
+      xVelocity = -0.4;
+      moveLeft = true;
+      break;
+    case 32:
+      jump = true;
+      yVelocity = 1.5;
+      break;
+    case 39:
+      xVelocity = 0.4;
+      moveRight = true;
+      break;
+  }
+}
+
+function keyUp(evt) {
+  switch (evt.keyCode) {
+    case 37:
+      moveLeft = false;
+      break;
+    case 38:
+      // cannot cancel jump with keyup
+      break;
+    case 39:
+      moveRight = false;
+      break;
+  }
+}
 
 class Renderer {
   constructor() {
@@ -999,6 +1046,9 @@ class Renderer {
     this._canvas = document.createElement('canvas');
 
     document.body.appendChild(this._canvas);
+
+    document.addEventListener('keydown', keyPush);
+    document.addEventListener('keyup', keyUp);
 
     GL = this._canvas.getContext('webgl2');
 
@@ -1367,26 +1417,32 @@ class LightPrepassDemo {
   _CreateLights() {
     this._lights = [];
 
-    for (let i = -9; i <= 9; i++) {
+    for (let i = -1; i <= 1; i++) {
       let l = this._renderer.CreateLight('point');
 
-      const v = vec3.fromValues(Math.random(), Math.random(), Math.random());
+      const v = vec3.fromValues(1.0, 1.0, 1.0);
       vec3.normalize(v, v);
 
+      /*
       const p = vec3.fromValues(
         (Math.random() * 2 - 1) * 10,
         3,
         -Math.random() * 10 - 10);
+      */
+      const p = vec3.fromValues(
+        -5,
+        15,
+        10);
 
       l.SetColour(v[0], v[1], v[2]);
       l.SetPosition(p[0], p[1], p[2]);
-      l.SetRadius(4, 1);
+      l.SetRadius(100, 1);
 
       this._lights.push({
           light: l,
           position: p,
-          acc: Math.random() * 10.0,
-          accSpeed: Math.random() * 0.5 + 0.5,
+          acc: 0, //Math.random() * 10.0,
+          accSpeed: 0 //Math.random() * 0.5 + 0.5,
       });
     }
   }
@@ -1405,24 +1461,21 @@ class LightPrepassDemo {
         });
     m.SetPosition(0, -2, -10);
     m.RotateX(-Math.PI * 0.5);
-    m.Scale(50, 50, 1);
+    m.Scale(200, 200, 1);
 
-    for (let x = -5; x < 5; x++) {
-      for (let y = 0; y < 20; y++) {
-        let m = this._renderer.CreateMeshInstance(
-            new Box(),
-            {
-              shader: 'default',
-              params: {
-                diffuseTexture: 'test-diffuse',
-                normalTexture: 'test-normal',
-              }
-            });
-        m.SetPosition(x * 4, 0, -y * 4);
-
-        this._meshes.push(m);
-      }
-    }
+    let x = -1;
+    let y = 2;
+    character = this._renderer.CreateMeshInstance(
+        new Box(),
+        {
+          shader: 'default',
+          params: {
+            diffuseTexture: 'test-diffuse',
+            normalTexture: 'test-normal',
+          }
+        });
+    character.SetPosition(x * 4, 0, -y * 4);
+    this._meshes.push(character);
   }
 
   _RAF() {
@@ -1441,7 +1494,31 @@ class LightPrepassDemo {
     const timeElapsedS = timeElapsed * 0.001;
 
     for (let m of this._meshes) {
-      m.RotateY(timeElapsedS);
+      //m.RotateY(timeElapsedS);
+      const currPos = m._position;
+      currPos[0] += xVelocity;
+
+      // ground friction
+      if (!moveLeft && xVelocity < 0 ) {
+          xVelocity += groundFriction;
+          if (xVelocity > 0) xVelocity = 0;
+      }
+      if (!moveRight && xVelocity > 0 ) {
+        xVelocity -= groundFriction;
+        if (xVelocity < 0) xVelocity = 0;
+      }
+
+      if (yVelocity != 0) {
+          currPos[1] += yVelocity;
+          yVelocity -= gravity;
+      }
+      // hit the ground after jumping?
+      if (yVelocity != 0 && currPos[1] < 0) {
+          currPos[1] = 0;
+          yVelocity = 0;
+      }
+
+      m.SetPosition(currPos[0], currPos[1], currPos[2]);
     }
 
     for (let l of this._lights) {
@@ -1452,6 +1529,12 @@ class LightPrepassDemo {
           l.position[1],
           l.position[2] + 10 * Math.sin(l.acc));
     }
+
+    //console.log(this);
+    //this._camera.SetPosition(0, 20, 10);
+    //this._camera.SetTarget(0, 0, -20);
+    this._renderer._camera.SetPosition(character._position[0], character._position[1] + 10, character._position[2] + 15);
+    this._renderer._camera.SetTarget(character._position[0], character._position[1], character._position[2]);
 
     this._renderer.Render(timeElapsedS);
   }
