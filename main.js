@@ -268,11 +268,11 @@ class Shader {
     GL.attachShader(this._shader, this._vsProgram);
     GL.attachShader(this._shader, this._fsProgram);
     GL.linkProgram(this._shader);
-  
+
     if (!GL.getProgramParameter(this._shader, GL.LINK_STATUS)) {
       return null;
     }
-  
+
     this.attribs = {
       positions: GL.getAttribLocation(this._shader, 'position'),
       normals: GL.getAttribLocation(this._shader, 'normal'),
@@ -364,17 +364,17 @@ class Shader {
 
   _Load(type, source) {
     const shader = GL.createShader(type);
-  
+
     GL.shaderSource(shader, source);
     GL.compileShader(shader);
-  
+
     if (!GL.getShaderParameter(shader, GL.COMPILE_STATUS)) {
       console.log(GL.getShaderInfoLog(shader));
       console.log(source);
       GL.deleteShader(shader);
       return null;
     }
-  
+
     return shader;
   }
 
@@ -474,7 +474,7 @@ class Texture {
     img.src = src;
     img.onload = () => {
       GL.bindTexture(GL.TEXTURE_2D, this._texture);
-      GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img);  
+      GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, img);
       GL.generateMipmap(GL.TEXTURE_2D);
       GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR);
       GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
@@ -552,7 +552,7 @@ class MeshInstance {
       const s = shaders[sk];
       for (let k in shaderParams) {
         s.SetTexture(k, shaderParams[k]);
-      }  
+      }
     }
 
     this._position = vec3.create();
@@ -888,7 +888,7 @@ class PerspectiveCamera extends Camera {
     this._aspect = aspect;
     this._zNear = zNear;
     this._zFar = zFar;
-  
+
     mat4.perspective(this._projectionMatrix, fov * Math.PI / 180.0, aspect, zNear, zFar);
   }
 
@@ -915,7 +915,7 @@ class OrthoCamera extends Camera {
     super();
 
     this._projectionMatrix = mat4.create();
-  
+
     mat4.ortho(this._projectionMatrix, l, r, b, t, n, f);
   }
 }
@@ -1073,7 +1073,7 @@ class Renderer {
     GL.bindTexture(GL.TEXTURE_2D, this._normalBuffer);
     GL.texImage2D(
         GL.TEXTURE_2D, 0, GL.RGBA32F, window.innerWidth, window.innerHeight,
-        0, GL.RGBA, GL.FLOAT, null);  
+        0, GL.RGBA, GL.FLOAT, null);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
       GL.bindTexture(GL.TEXTURE_2D, null);
@@ -1082,7 +1082,7 @@ class Renderer {
     GL.bindTexture(GL.TEXTURE_2D, this._positionBuffer);
     GL.texImage2D(
         GL.TEXTURE_2D, 0, GL.RGBA32F, window.innerWidth, window.innerHeight,
-        0, GL.RGBA, GL.FLOAT, null);  
+        0, GL.RGBA, GL.FLOAT, null);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
     GL.bindTexture(GL.TEXTURE_2D, null);
@@ -1091,7 +1091,7 @@ class Renderer {
     GL.bindTexture(GL.TEXTURE_2D, this._lightBuffer);
     GL.texImage2D(
         GL.TEXTURE_2D, 0, GL.RGBA32F, window.innerWidth, window.innerHeight,
-        0, GL.RGBA, GL.FLOAT, null);  
+        0, GL.RGBA, GL.FLOAT, null);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
     GL.bindTexture(GL.TEXTURE_2D, null);
@@ -1100,7 +1100,7 @@ class Renderer {
     GL.bindTexture(GL.TEXTURE_2D, this._colourBuffer);
     GL.texImage2D(
         GL.TEXTURE_2D, 0, GL.RGBA32F, window.innerWidth, window.innerHeight,
-        0, GL.RGBA, GL.FLOAT, null);  
+        0, GL.RGBA, GL.FLOAT, null);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
     GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
     GL.bindTexture(GL.TEXTURE_2D, null);
@@ -1223,7 +1223,7 @@ class Renderer {
       vec3.add(rightPos, rightPos, vec3.fromValues(lightRadius, 0, 0));
       vec3.add(upPos, upPos, vec3.fromValues(0, -lightRadius, 0));
 
-      const center = _TransformToScreenSpace(light._position);    
+      const center = _TransformToScreenSpace(light._position);
       const up = _TransformToScreenSpace(upPos);
       const right = _TransformToScreenSpace(rightPos);
 
@@ -1419,7 +1419,7 @@ class LightPrepassDemo {
               }
             });
         m.SetPosition(x * 4, 0, -y * 4);
-    
+
         this._meshes.push(m);
       }
     }
