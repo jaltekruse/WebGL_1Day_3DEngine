@@ -1990,6 +1990,20 @@ class LightPrepassDemo {
     m.RotateX(-Math.PI * 0.5);
     m.Scale(200, 200, 1);
 
+
+    let background = this._renderer.CreateMeshInstance(
+        new Quad(),
+        {
+          shader: 'default',
+          params: {
+            diffuseTexture: 'test-diffuse',
+            normalTexture: 'worn-bumpy-rock-normal',
+          }
+        });
+    background.SetPosition(0, -2, -50);
+    //m.RotateX(-Math.PI * 0.5);
+    background.Scale(500, 500, 1);
+
     let x = -1;
     let y = 2;
     character = this._renderer.CreateMeshInstance(
@@ -2029,6 +2043,9 @@ class LightPrepassDemo {
     feet[0].SetPosition(x * 4 + 0.2, -0.3, -y * 4 + 0.9);
     feet[0].Scale(0.3, 0.2, 0.3);
     this._meshes.push(feet[0]);
+
+    var inhalingDust = [];
+
   }
 
   _RAF() {
@@ -2067,6 +2084,7 @@ class LightPrepassDemo {
       }
     }
 
+    // TODO - terminal velocity, which is lower when puffed up
     if (yVelocity != 0) {
         currPos[1] += yVelocity;
         yVelocity -= gravity;
@@ -2148,7 +2166,8 @@ var yVelocity = 0;
 var xVelocity = 0;
 var character;
 var arms = [];
-var feet = [];
+var feet = []
+var inhalingDust = [];
 // 2D array, storing x and y offset from neutral in middle of body
 var armPos = [[0.0, 0.0], [0.0, 0.0]];
 var armSwing = 0.0;
@@ -2175,8 +2194,9 @@ function keyPush(evt) {
       }
       break;
     case 83: // S  (down in wasd)
-      if (!jumping && !flying && !moveLeft && !moveRight && !ducking) {
+      if (!jumping && !flying && !ducking) {
         ducking = true;
+        moveLeft = moveRight = false;
         character.Scale(1.0, 0.3, 1.0);
         // TODO - make it so this doesn't impact the camera
         character.SetPosition(character._position[0], character._position[1] - duckingPosShift, character._position[2]);
@@ -2189,7 +2209,7 @@ function keyPush(evt) {
         character.Scale(1.0, 1.0, 1.0);
         gravity = 0.1;
       } else {
-        if (!inhaling) {
+        if (!inhaling && !ducking) {
           inhaling = true;
           if (xVelocity !=0) xVelocity *= 0.5;
 
@@ -2208,10 +2228,12 @@ function keyPush(evt) {
         gravity = 0.05;
         yVelocity = 0.7;
         flying = true;
+      } else if (ducking) {
+        // TODO - sliding kick
       } else {
         yVelocity = 1.5;
+        jumping = true;
       }
-      jumping = true;
       break;
     case 76: // L
       break;
