@@ -2240,7 +2240,9 @@ function keyUp(evt) {
         character.Scale(1.0, 1.0, 1.0);
         character.SetPosition(
           character._position[0],
-          character._position[1] - inhalingPosShift,
+          // TODO - is there a more elegant way to handle this, prevents a bug when inhaling while
+          // faling and then stopping to inhale
+          character._position[1] > 0 ? character._position[1] - inhalingPosShift : 0,
           character._position[2]);
       }
       break;
