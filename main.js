@@ -2126,8 +2126,16 @@ class LightPrepassDemo {
     //console.log(this);
     //this._camera.SetPosition(0, 20, 10);
     //this._camera.SetTarget(0, 0, -20);
-    this._renderer._camera.SetPosition(character._position[0], character._position[1] + 3, character._position[2] + 15);
-    this._renderer._camera.SetTarget(character._position[0], character._position[1], character._position[2]);
+    this._renderer._camera.SetPosition(
+        character._position[0],
+        character._position[1] + 3 +
+        (inhaling ? -inhalingPosShift : (ducking ? duckingPosShift : 0)),
+        character._position[2] + 15);
+    this._renderer._camera.SetTarget(
+        character._position[0],
+        character._position[1] +
+        (inhaling ? -inhalingPosShift : (ducking ? duckingPosShift : 0)),
+        character._position[2]);
 
     this._renderer.Render(timeElapsedS);
   }
@@ -2144,11 +2152,13 @@ var armPos = [[0.0, 0.0], [0.0, 0.0]];
 var armSwing = 0.0;
 var groundFriction = 0.05;
 var gravity = 0.1;
+const duckingPosShift = 0.5;
+const inhalingPosShift = 1.0;
 function keyPush(evt) {
   switch (evt.keyCode) {
     case 65: // A  (left in wasd)
       if (!moveLeft && !ducking) {
-        xVelocity = -0.4;
+        xVelocity = inhaling ? -0.2 : -0.4;
         armSwing = 0.05;
         moveLeft = true;
       }
@@ -2157,7 +2167,7 @@ function keyPush(evt) {
       break;
     case 68: // D  (right in wasd)
       if (!moveRight && !ducking) {
-        xVelocity = 0.4;
+        xVelocity = inhaling ? 0.2 : 0.4;
         armSwing = 0.05;
         moveRight = true;
       }
@@ -2167,7 +2177,7 @@ function keyPush(evt) {
         ducking = true;
         character.Scale(1.0, 0.3, 1.0);
         // TODO - make it so this doesn't impact the camera
-        character.SetPosition(character._position[0], character._position[1] - 0.5, character._position[2]);
+        character.SetPosition(character._position[0], character._position[1] - duckingPosShift, character._position[2]);
       }
       break;
     case 74: // J
@@ -2177,8 +2187,16 @@ function keyPush(evt) {
         character.Scale(1.0, 1.0, 1.0);
         gravity = 0.1;
       } else {
-        inhaling = true;
-        character.Scale(1.8, 1.8, 1.8);
+        if (!inhaling) {
+          inhaling = true;
+          if (xVelocity !=0) xVelocity *= 0.5;
+
+          character.Scale(1.8, 1.8, 1.8);
+          character.SetPosition(
+            character._position[0],
+            character._position[1] + inhalingPosShift,
+            character._position[2]);
+        }
       }
       break;
     case 75: // K
@@ -2213,7 +2231,17 @@ function keyUp(evt) {
       if (!jumping && !flying) {
         ducking = false;
         character.Scale(1.0, 1.0, 1.0);
-        character.SetPosition(character._position[0], character._position[1] + 0.5, character._position[2]);
+        character.SetPosition(character._position[0], character._position[1] + duckingPosShift, character._position[2]);
+      }
+      break;
+    case 74:
+      if (inhaling) {
+        inhaling = false;
+        character.Scale(1.0, 1.0, 1.0);
+        character.SetPosition(
+          character._position[0],
+          character._position[1] - inhalingPosShift,
+          character._position[2]);
       }
       break;
   }
