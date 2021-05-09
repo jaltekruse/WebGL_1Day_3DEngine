@@ -1576,14 +1576,14 @@ var groundFriction = 0.05;
 var gravity = 0.1;
 function keyPush(evt) {
   switch (evt.keyCode) {
-    case 37:
+    case 65: // A  (left in wasd)
       if (!moveLeft && !ducking) {
         xVelocity = -0.4;
         armSwing = 0.05;
         moveLeft = true;
       }
       break;
-    case 32:
+    case 87: // W  (up in wasd)
       // second jump, puff up and start flying
       if (jumping) {
         character.Scale(1.8, 1.8, 1.8);
@@ -1595,14 +1595,14 @@ function keyPush(evt) {
       }
       jumping = true;
       break;
-    case 39:
+    case 68: // D  (right in wasd)
       if (!moveRight && !ducking) {
         xVelocity = 0.4;
         armSwing = 0.05;
         moveRight = true;
       }
       break;
-    case 40:
+    case 83: // S  (down in wasd)
       if (!jumping && !flying && !moveLeft && !moveRight && !ducking) {
         ducking = true;
         character.Scale(1.0, 0.3, 1.0);
@@ -1610,21 +1610,33 @@ function keyPush(evt) {
         character.SetPosition(character._position[0], character._position[1] - 0.5, character._position[2]);
       }
       break;
+    case 74: // J
+      // deflate and go back to original fall speed
+      if (flying) {
+        flying = false;
+        character.Scale(1.0, 1.0, 1.0);
+        gravity = 0.1;
+      }
+      break;
+    case 75: // K
+      break;
+    case 76: // L
+      break;
   }
 }
 
 function keyUp(evt) {
   switch (evt.keyCode) {
-    case 37:
+    case 65: // A  (left in wasd)
       moveLeft = false;
       break;
-    case 38:
+    case 87: // W  (up in wasd)
       // cannot cancel jump with keyup
       break;
-    case 39:
+    case 68: // D  (right in wasd)
       moveRight = false;
       break;
-    case 40:
+    case 83: // S  (down in wasd)
       if (!jumping && !flying) {
         ducking = false;
         character.Scale(1.0, 1.0, 1.0);
