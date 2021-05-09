@@ -1564,88 +1564,6 @@ class PointLight extends Light {
   }
 }
 
-var moveLeft, moveRight, jumping, flying, ducking;
-var yVelocity = 0;
-var xVelocity = 0;
-var character;
-var arms = [];
-// 2D array, storing x and y offset from neutral in middle of body
-var armPos = [[0.0, 0.0], [0.0, 0.0]];
-var armSwing = 0.0;
-var groundFriction = 0.05;
-var gravity = 0.1;
-function keyPush(evt) {
-  switch (evt.keyCode) {
-    case 65: // A  (left in wasd)
-      if (!moveLeft && !ducking) {
-        xVelocity = -0.4;
-        armSwing = 0.05;
-        moveLeft = true;
-      }
-      break;
-    case 87: // W  (up in wasd)
-      break;
-    case 68: // D  (right in wasd)
-      if (!moveRight && !ducking) {
-        xVelocity = 0.4;
-        armSwing = 0.05;
-        moveRight = true;
-      }
-      break;
-    case 83: // S  (down in wasd)
-      if (!jumping && !flying && !moveLeft && !moveRight && !ducking) {
-        ducking = true;
-        character.Scale(1.0, 0.3, 1.0);
-        // TODO - make it so this doesn't impact the camera
-        character.SetPosition(character._position[0], character._position[1] - 0.5, character._position[2]);
-      }
-      break;
-    case 74: // J
-      // deflate and go back to original fall speed
-      if (flying) {
-        flying = false;
-        character.Scale(1.0, 1.0, 1.0);
-        gravity = 0.1;
-      }
-      break;
-    case 75: // K
-      // second jump, puff up and start flying
-      if (jumping) {
-        character.Scale(1.8, 1.8, 1.8);
-        gravity = 0.05;
-        yVelocity = 0.7;
-        flying = true;
-      } else {
-        yVelocity = 1.5;
-      }
-      jumping = true;
-      break;
-    case 76: // L
-      break;
-  }
-}
-
-function keyUp(evt) {
-  switch (evt.keyCode) {
-    case 65: // A  (left in wasd)
-      moveLeft = false;
-      break;
-    case 87: // W  (up in wasd)
-      // cannot cancel jump with keyup
-      break;
-    case 68: // D  (right in wasd)
-      moveRight = false;
-      break;
-    case 83: // S  (down in wasd)
-      if (!jumping && !flying) {
-        ducking = false;
-        character.Scale(1.0, 1.0, 1.0);
-        character.SetPosition(character._position[0], character._position[1] + 0.5, character._position[2]);
-      }
-      break;
-  }
-}
-
 class Renderer {
   constructor() {
     this._Init();
@@ -2087,7 +2005,7 @@ class LightPrepassDemo {
     this._meshes.push(character);
 
     arms[0] = this._renderer.CreateMeshInstance(
-        new Box(),
+        new Sphere(),
         {
           shader: 'default',
           params: {
@@ -2194,6 +2112,87 @@ class LightPrepassDemo {
   }
 }
 
+var moveLeft, moveRight, jumping, flying, ducking;
+var yVelocity = 0;
+var xVelocity = 0;
+var character;
+var arms = [];
+// 2D array, storing x and y offset from neutral in middle of body
+var armPos = [[0.0, 0.0], [0.0, 0.0]];
+var armSwing = 0.0;
+var groundFriction = 0.05;
+var gravity = 0.1;
+function keyPush(evt) {
+  switch (evt.keyCode) {
+    case 65: // A  (left in wasd)
+      if (!moveLeft && !ducking) {
+        xVelocity = -0.4;
+        armSwing = 0.05;
+        moveLeft = true;
+      }
+      break;
+    case 87: // W  (up in wasd)
+      break;
+    case 68: // D  (right in wasd)
+      if (!moveRight && !ducking) {
+        xVelocity = 0.4;
+        armSwing = 0.05;
+        moveRight = true;
+      }
+      break;
+    case 83: // S  (down in wasd)
+      if (!jumping && !flying && !moveLeft && !moveRight && !ducking) {
+        ducking = true;
+        character.Scale(1.0, 0.3, 1.0);
+        // TODO - make it so this doesn't impact the camera
+        character.SetPosition(character._position[0], character._position[1] - 0.5, character._position[2]);
+      }
+      break;
+    case 74: // J
+      // deflate and go back to original fall speed
+      if (flying) {
+        flying = false;
+        character.Scale(1.0, 1.0, 1.0);
+        gravity = 0.1;
+      }
+      break;
+    case 75: // K
+      // second jump, puff up and start flying
+      if (jumping) {
+        character.Scale(1.8, 1.8, 1.8);
+        gravity = 0.05;
+        yVelocity = 0.7;
+        flying = true;
+      } else {
+        yVelocity = 1.5;
+      }
+      jumping = true;
+      break;
+    case 76: // L
+      break;
+  }
+}
+
+function keyUp(evt) {
+  switch (evt.keyCode) {
+    case 65: // A  (left in wasd)
+      moveLeft = false;
+      break;
+    case 87: // W  (up in wasd)
+      // cannot cancel jump with keyup
+      break;
+    case 68: // D  (right in wasd)
+      moveRight = false;
+      break;
+    case 83: // S  (down in wasd)
+      if (!jumping && !flying) {
+        ducking = false;
+        character.Scale(1.0, 1.0, 1.0);
+        character.SetPosition(character._position[0], character._position[1] + 0.5, character._position[2]);
+      }
+      break;
+  }
+}
 
 let _APP = null;
 
