@@ -2073,9 +2073,14 @@ class LightPrepassDemo {
     }
     // hit the ground after jumping?
     if (yVelocity != 0 && currPos[1] < 0) {
-        currPos[1] = 0;
         yVelocity = 0;
-        character.Scale(1.0, 1.0, 1.0);
+        // if inhaling we want to stay big
+        if (inhaling) {
+            currPos[1] = inhalingPosShift;
+        } else {
+            character.Scale(1.0, 1.0, 1.0);
+            currPos[1] = 0;
+        }
         jumping = false;
         flying = false;
         gravity = 0.1;
@@ -2106,7 +2111,7 @@ class LightPrepassDemo {
           - (flying || inhaling ? 1.2 : 0.6)
           - armPos[0][1],
         currPos[2] +
-        (flying || inhaling ? 1.8 : 0.9)
+        (flying || inhaling ? 1.8 : (ducking ? 0.1 : 0.9))
     );
     if (moveLeft || moveRight) {
 
@@ -2240,9 +2245,7 @@ function keyUp(evt) {
         character.Scale(1.0, 1.0, 1.0);
         character.SetPosition(
           character._position[0],
-          // TODO - is there a more elegant way to handle this, prevents a bug when inhaling while
-          // faling and then stopping to inhale
-          character._position[1] > 0 ? character._position[1] - inhalingPosShift : 0,
+          character._position[1] - inhalingPosShift,
           character._position[2]);
       }
       break;
