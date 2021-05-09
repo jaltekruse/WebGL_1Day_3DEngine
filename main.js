@@ -2113,9 +2113,6 @@ class LightPrepassDemo {
         currPos[2] +
         (flying || inhaling ? 1.8 : (ducking ? 0.1 : 0.9))
     );
-    if (moveLeft || moveRight) {
-
-    }
 
     m.SetPosition(currPos[0], currPos[1], currPos[2]);
 
