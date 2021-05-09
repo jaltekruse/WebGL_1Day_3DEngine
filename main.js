@@ -2001,7 +2001,7 @@ class LightPrepassDemo {
             normalTexture: 'test-normal',
           }
         });
-    character.SetPosition(x * 4, 6, -y * 4);
+    character.SetPosition(x * 4, 0, -y * 4);
     this._meshes.push(character);
 
     arms[0] = this._renderer.CreateMeshInstance(
@@ -2017,6 +2017,18 @@ class LightPrepassDemo {
     arms[0].Scale(0.3, 0.3, 0.3);
     this._meshes.push(arms[0]);
 
+    feet[0] = this._renderer.CreateMeshInstance(
+        new Sphere(),
+        {
+          shader: 'default',
+          params: {
+            diffuseTexture: 'test-diffuse',
+            normalTexture: 'test-normal',
+          }
+        });
+    feet[0].SetPosition(x * 4 + 0.2, -0.3, -y * 4 + 0.9);
+    feet[0].Scale(0.3, 0.2, 0.3);
+    this._meshes.push(feet[0]);
   }
 
   _RAF() {
@@ -2069,7 +2081,7 @@ class LightPrepassDemo {
         gravity = 0.1;
     }
 
-    if (moveLeft || moveRight) {
+    if ( !flying && !jumping && (moveLeft || moveRight)) {
       armPos[0][0] += armSwing;
 
       if (armPos[0][0] > 0.2) {
@@ -2085,7 +2097,16 @@ class LightPrepassDemo {
         currPos[0] + 0.0 + armPos[0][0],
         currPos[1] + 0.3 + armPos[0][1],
         currPos[2] +
-        (flying ? 1.8 : 0.9)
+        (flying || inhaling ? 1.8 : 0.9)
+    );
+
+    feet[0].SetPosition(
+        currPos[0] + 0.0 - armPos[0][0],
+        currPos[1]
+          - (flying || inhaling ? 1.2 : 0.6)
+          - armPos[0][1],
+        currPos[2] +
+        (flying || inhaling ? 1.8 : 0.9)
     );
     if (moveLeft || moveRight) {
 
@@ -2105,18 +2126,19 @@ class LightPrepassDemo {
     //console.log(this);
     //this._camera.SetPosition(0, 20, 10);
     //this._camera.SetTarget(0, 0, -20);
-    this._renderer._camera.SetPosition(character._position[0], character._position[1] + 10, character._position[2] + 15);
+    this._renderer._camera.SetPosition(character._position[0], character._position[1] + 3, character._position[2] + 15);
     this._renderer._camera.SetTarget(character._position[0], character._position[1], character._position[2]);
 
     this._renderer.Render(timeElapsedS);
   }
 }
 
-var moveLeft, moveRight, jumping, flying, ducking;
+var moveLeft, moveRight, jumping, flying, ducking, inhaling;
 var yVelocity = 0;
 var xVelocity = 0;
 var character;
 var arms = [];
+var feet = [];
 // 2D array, storing x and y offset from neutral in middle of body
 var armPos = [[0.0, 0.0], [0.0, 0.0]];
 var armSwing = 0.0;
@@ -2154,6 +2176,9 @@ function keyPush(evt) {
         flying = false;
         character.Scale(1.0, 1.0, 1.0);
         gravity = 0.1;
+      } else {
+        inhaling = true;
+        character.Scale(1.8, 1.8, 1.8);
       }
       break;
     case 75: // K
