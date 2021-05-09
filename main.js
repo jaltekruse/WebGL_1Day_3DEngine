@@ -2044,9 +2044,10 @@ class LightPrepassDemo {
     feet[0].Scale(0.3, 0.2, 0.3);
     this._meshes.push(feet[0]);
 
+    const box = new Box();
     for (var i = 0; i < 10; i++) {
       var dust = this._renderer.CreateMeshInstance(
-        new Box(),
+        box,
         {
           shader: 'default',
           params: {
@@ -2149,14 +2150,22 @@ class LightPrepassDemo {
 
     // move the inhaling dust
     if (inhaling) {
-      for (var i = 0; i < 10; i++) {
+      for (var i = 0; i < inhalingDust.length; i++) {
         var dust = inhalingDust[i];
         var dPos = dust._position;
         dust.SetPosition(
-          dPos[0] < currPos[0] + 1.0 ? currPos[0] + 1.5 + Math.random() * 3.0 : dPos[0] - 0.3,
-          dPos[1],
-          dPos[2],
+          dPos[0] - 0.3,
+          dPos[1] - ((dPos[1] - currPos[1]) * .1),
+          dPos[2] - ((dPos[2] - currPos[2]) * .1),
         );
+        // if it is close to character, generate a new position
+        if (dPos[0] < currPos[0] + 1.0) {
+          dust.SetPosition(
+              currPos[0] + 1.5 + Math.random() * 3.0,
+              currPos[1] + Math.random() * 2.5,
+              currPos[2] + Math.random() * 2.5 + inhalingPosShift,
+          );
+        }
         dust.RotateX(timeElapsed);
         dust.RotateY(timeElapsed);
       }
@@ -2244,7 +2253,7 @@ function keyPush(evt) {
           const charPos = character._position;
 
           // place the dust particles to show inhaling
-          for (var i = 0; i < 10; i++) {
+          for (var i = 0; i < inhalingDust.length; i++) {
             inhalingDust[i].SetPosition(
               charPos[0] + 1.5 + Math.random() * 3.0,
               charPos[1] + Math.random() * 2.5,
@@ -2303,7 +2312,7 @@ function keyUp(evt) {
       if (inhaling) {
         inhaling = false;
 
-        for (var i = 0; i < 10; i++) { // move the dust out of view
+        for (var i = 0; i < inhalingDust.length; i++) { // move the dust out of view
           var dust = inhalingDust[i].SetPosition(500, 500, 500);
         }
         character.Scale(1.0, 1.0, 1.0);
