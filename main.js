@@ -607,6 +607,570 @@ class MeshInstance {
 }
 
 
+class Sphere extends Mesh {
+  constructor() {
+    super();
+  }
+
+  _OnInit() {
+    var positions = [];
+    for (var i = 0; i < 6; i++) {
+        positions = positions.concat([1.0, 0.0, 0.0]);
+        positions = positions.concat([1.0, 0.0, 0.0]);
+        positions = positions.concat([0.5, 0.8 * Math.sin( (Math.PI/3) * i ), 0.8 * Math.cos( (Math.PI/3) * i)]);
+        positions = positions.concat([0.5, 0.8 * Math.sin( (Math.PI/3) * (i-1) ), 0.8 * Math.cos( (Math.PI/3) * (i -1))]);
+    }
+    for (var i = 0; i < 6; i++) {
+        positions = positions.concat([0.5, 0.8 * Math.sin( (Math.PI/3) * i ), 0.8 * Math.cos( (Math.PI/3) * i)]);
+        positions = positions.concat([0.5, 0.8 * Math.sin( (Math.PI/3) * (i-1) ), 0.8 * Math.cos( (Math.PI/3) * (i -1))]);
+        positions = positions.concat([0.0, Math.sin( (Math.PI/3) * (i-1) ), Math.cos( (Math.PI/3) * (i -1))]);
+        positions = positions.concat([0.0, Math.sin( (Math.PI/3) * i ), Math.cos( (Math.PI/3) * i)]);
+    }
+    for (var i = 0; i < 6; i++) {
+        positions = positions.concat([-0.5, 0.8 * Math.sin( (Math.PI/3) * i ), 0.8 * Math.cos( (Math.PI/3) * i)]);
+        positions = positions.concat([-0.5, 0.8 * Math.sin( (Math.PI/3) * (i-1) ), 0.8 * Math.cos( (Math.PI/3) * (i -1))]);
+        positions = positions.concat([0.0, Math.sin( (Math.PI/3) * (i-1) ), Math.cos( (Math.PI/3) * (i -1))]);
+        positions = positions.concat([0.0, Math.sin( (Math.PI/3) * i ), Math.cos( (Math.PI/3) * i)]);
+    }
+    for (var i = 0; i < 6; i++) {
+        positions = positions.concat([-1.0, 0.0, 0.0]);
+        positions = positions.concat([-1.0, 0.0, 0.0]);
+        positions = positions.concat([-0.5, -0.8 * Math.sin( (Math.PI/3) * i ), -0.8 * Math.cos( (Math.PI/3) * i)]);
+        positions = positions.concat([-0.5, -0.8 * Math.sin( (Math.PI/3) * (i-1) ), -0.8 * Math.cos( (Math.PI/3) * (i -1))]);
+    }
+      /*
+    const positions = [
+      // Front face
+      -1.0, -1.0,  1.0,
+      1.0, -1.0,  1.0,
+      1.0,  1.0,  1.0,
+      -1.0,  1.0,  1.0,
+
+      // Back face
+      -1.0, -1.0, -1.0,
+      -1.0,  1.0, -1.0,
+      1.0,  1.0, -1.0,
+      1.0, -1.0, -1.0,
+
+      // Top face
+      -1.0,  1.0, -1.0,
+      -1.0,  1.0,  1.0,
+      1.0,  1.0,  1.0,
+      1.0,  1.0, -1.0,
+
+      // Bottom face
+      -1.0, -1.0, -1.0,
+      1.0, -1.0, -1.0,
+      1.0, -1.0,  1.0,
+      -1.0, -1.0,  1.0,
+
+      // Right face
+      1.0, -1.0, -1.0,
+      1.0,  1.0, -1.0,
+      1.0,  1.0,  1.0,
+      1.0, -1.0,  1.0,
+
+      // Left face
+      -1.0, -1.0, -1.0,
+      -1.0, -1.0,  1.0,
+      -1.0,  1.0,  1.0,
+      -1.0,  1.0, -1.0,
+    ];
+    */
+
+    const uvs = [
+      // Front face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Back face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Top face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Bottom face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Right face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Left face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Front face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Back face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Top face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Bottom face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Right face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Left face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+      // Front face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Back face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Top face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Bottom face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Right face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Left face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+      // Front face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Back face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Top face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Bottom face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Right face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+
+      // Left face
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0,
+    ];
+
+    const normals = [
+      // Front face
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+
+      // Back face
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+
+      // Top face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Bottom face
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+
+      // Right face
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+
+      // Left face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+
+      // Front face
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+
+      // Back face
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+
+      // Top face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Bottom face
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+
+      // Right face
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+
+      // Left face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+
+      // Front face
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+
+      // Back face
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+
+      // Top face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Bottom face
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+
+      // Right face
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+
+      // Left face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      // Front face
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+
+      // Back face
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+
+      // Top face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Bottom face
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+      0.0, -1.0, 0.0,
+
+      // Right face
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+
+      // Left face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+    ];
+
+    const tangents = [
+
+
+      // Front face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+
+      // Back face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Top face
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+
+      // Bottom face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+
+      // Right face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Left face
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      // Front face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+
+      // Back face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Top face
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+
+      // Bottom face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+
+      // Right face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Left face
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      // Front face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+
+      // Back face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Top face
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+
+      // Bottom face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+
+      // Right face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Left face
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      // Front face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+
+      // Back face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Top face
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, 1.0,
+
+      // Bottom face
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+      -1.0, 0.0, 0.0,
+
+      // Right face
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 1.0, 0.0,
+
+      // Left face
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+      0.0, 0.0, -1.0,
+    ];
+
+    /*
+    const faceColors = [
+      [1.0,  1.0,  1.0,  1.0],    // Front face: white
+      [1.0,  0.0,  0.0,  1.0],    // Back face: red
+      [0.0,  1.0,  0.0,  1.0],    // Top face: green
+      [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
+      [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
+      [1.0,  0.0,  1.0,  1.0],    // Left face: purple
+    ];
+    */
+
+    const faceColors = [
+      [1.0,  1.0,  1.0,  1.0],    // Front face: white
+      [1.0,  1.0,  1.0,  1.0],    // Back face: red
+      [1.0,  1.0,  1.0,  1.0],    // Top face: green
+      [1.0,  1.0,  1.0,  1.0],    // Bottom face: blue
+      [1.0,  1.0,  1.0,  1.0],    // Right face: yellow
+      [1.0,  1.0,  1.0,  1.0],    // Left face: purple
+    ];
+
+    // Convert the array of colors into a table for all the vertices.
+
+    let colours = [];
+
+    for (var j = 0; j < faceColors.length; ++j) {
+      const c = faceColors[j];
+
+      // Repeat each color four times for the four vertices of the face
+      colours = colours.concat(c, c, c, c);
+    }
+
+    var indices = [];
+    for (var i = 0; i < 24; i++) {
+      indices = indices.concat([0 + 4*i, 1 + 4*i, 2 + 4*i,    0 + 4*i, 2 + 4*i, 3 + 4*i]);
+    }
+    /*
+    const indices = [
+      0,  1,  2,      0,  2,  3,    // front
+      4,  5,  6,      4,  6,  7,    // back
+      8,  9,  10,     8,  10, 11,   // top
+      12, 13, 14,     12, 14, 15,   // bottom
+      16, 17, 18,     16, 18, 19,   // right
+      20, 21, 22,     20, 22, 23,   // left
+
+      24, 25, 26,     24, 26, 27,   // other side of sphere
+      28, 29, 30,     28, 30, 31,   // other side of sphere
+    ];
+    */
+
+    this._BufferData({size: 3, data: positions}, 'positions');
+    this._BufferData({size: 3, data: normals}, 'normals');
+    this._BufferData({size: 3, data: tangents}, 'tangents');
+    this._BufferData({size: 4, data: colours}, 'colours');
+    this._BufferData({size: 2, data: uvs}, 'uvs');
+    this._BufferData({data: indices}, 'index');
+  }
+}
+
+
 class Box extends Mesh {
   constructor() {
     super();
@@ -1499,7 +2063,7 @@ class LightPrepassDemo {
     let x = -1;
     let y = 2;
     character = this._renderer.CreateMeshInstance(
-        new Box(),
+        new Sphere(),
         {
           shader: 'default',
           params: {
@@ -1507,7 +2071,7 @@ class LightPrepassDemo {
             normalTexture: 'test-normal',
           }
         });
-    character.SetPosition(x * 4, 0, -y * 4);
+    character.SetPosition(x * 4, 6, -y * 4);
     this._meshes.push(character);
 
     arms[0] = this._renderer.CreateMeshInstance(
@@ -1520,7 +2084,7 @@ class LightPrepassDemo {
           }
         });
     arms[0].SetPosition(x * 4 + 0.2, 0, -y * 4 + 0.9);
-    arms[0].Scale(0.5, 0.5, 0.5);
+    arms[0].Scale(0.3, 0.3, 0.3);
     this._meshes.push(arms[0]);
 
   }
