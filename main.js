@@ -1584,16 +1584,6 @@ function keyPush(evt) {
       }
       break;
     case 87: // W  (up in wasd)
-      // second jump, puff up and start flying
-      if (jumping) {
-        character.Scale(1.8, 1.8, 1.8);
-        gravity = 0.05;
-        yVelocity = 0.7;
-        flying = true;
-      } else {
-        yVelocity = 1.5;
-      }
-      jumping = true;
       break;
     case 68: // D  (right in wasd)
       if (!moveRight && !ducking) {
@@ -1619,6 +1609,16 @@ function keyPush(evt) {
       }
       break;
     case 75: // K
+      // second jump, puff up and start flying
+      if (jumping) {
+        character.Scale(1.8, 1.8, 1.8);
+        gravity = 0.05;
+        yVelocity = 0.7;
+        flying = true;
+      } else {
+        yVelocity = 1.5;
+      }
+      jumping = true;
       break;
     case 76: // L
       break;
