@@ -2194,7 +2194,7 @@ function keyPush(evt) {
       }
       break;
     case 83: // S  (down in wasd)
-      if (!jumping && !flying && !ducking) {
+      if (!jumping && !flying && !ducking && !inhaling) {
         ducking = true;
         moveLeft = moveRight = false;
         character.Scale(1.0, 0.3, 1.0);
@@ -2213,7 +2213,7 @@ function keyPush(evt) {
           inhaling = true;
           if (xVelocity !=0) xVelocity *= 0.5;
 
-          character.Scale(1.8, 1.8, 1.8);
+          character.Scale(1.2, 1.8, 1.8);
           character.SetPosition(
             character._position[0],
             character._position[1] + inhalingPosShift,
@@ -2230,7 +2230,7 @@ function keyPush(evt) {
         flying = true;
       } else if (ducking) {
         // TODO - sliding kick
-      } else {
+      } else if (!inhaling) {
         yVelocity = 1.5;
         jumping = true;
       }
@@ -2252,13 +2252,13 @@ function keyUp(evt) {
       moveRight = false;
       break;
     case 83: // S  (down in wasd)
-      if (!jumping && !flying) {
+      if (!jumping && !flying && ducking) {
         ducking = false;
         character.Scale(1.0, 1.0, 1.0);
         character.SetPosition(character._position[0], character._position[1] + duckingPosShift, character._position[2]);
       }
       break;
-    case 74:
+    case 74: // K
       if (inhaling) {
         inhaling = false;
         character.Scale(1.0, 1.0, 1.0);
