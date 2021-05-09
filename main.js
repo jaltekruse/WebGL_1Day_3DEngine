@@ -2044,8 +2044,21 @@ class LightPrepassDemo {
     feet[0].Scale(0.3, 0.2, 0.3);
     this._meshes.push(feet[0]);
 
-    var inhalingDust = [];
-
+    for (var i = 0; i < 10; i++) {
+      var dust = this._renderer.CreateMeshInstance(
+        new Box(),
+        {
+          shader: 'default',
+          params: {
+            diffuseTexture: 'test-diffuse',
+            normalTexture: 'test-normal',
+          }
+        });
+      // move it out of view for now
+      dust.SetPosition(5000, 5000, 5000);
+      dust.Scale(Math.random() * 0.3, 0.01, Math.random() * 0.3);
+      inhalingDust.push(dust);
+    }
   }
 
   _RAF() {
@@ -2134,6 +2147,21 @@ class LightPrepassDemo {
 
     m.SetPosition(currPos[0], currPos[1], currPos[2]);
 
+    // move the inhaling dust
+    if (inhaling) {
+      for (var i = 0; i < 10; i++) {
+        var dust = inhalingDust[i];
+        var dPos = dust._position;
+        dust.SetPosition(
+          dPos[0] < currPos[0] + 1.0 ? currPos[0] + 1.5 + Math.random() * 3.0 : dPos[0] - 0.3,
+          dPos[1],
+          dPos[2],
+        );
+        dust.RotateX(timeElapsed);
+        dust.RotateY(timeElapsed);
+      }
+    }
+
     for (let l of this._lights) {
       l.acc += timeElapsed * 0.001 * l.accSpeed;
 
@@ -2211,13 +2239,26 @@ function keyPush(evt) {
       } else {
         if (!inhaling && !ducking) {
           inhaling = true;
+          // walk slower while inhaling
           if (xVelocity !=0) xVelocity *= 0.5;
+          const charPos = character._position;
+
+          // place the dust particles to show inhaling
+          for (var i = 0; i < 10; i++) {
+            inhalingDust[i].SetPosition(
+              charPos[0] + 1.5 + Math.random() * 3.0,
+              charPos[1] + Math.random() * 2.5,
+              charPos[2] + Math.random() * 2.5,
+            );
+            inhalingDust[i].RotateX(Math.random());
+            inhalingDust[i].RotateY(Math.random());
+          }
 
           character.Scale(1.2, 1.8, 1.8);
           character.SetPosition(
-            character._position[0],
-            character._position[1] + inhalingPosShift,
-            character._position[2]);
+            charPos[0],
+            charPos[1] + inhalingPosShift,
+            charPos[2]);
         }
       }
       break;
@@ -2261,6 +2302,10 @@ function keyUp(evt) {
     case 74: // K
       if (inhaling) {
         inhaling = false;
+
+        for (var i = 0; i < 10; i++) { // move the dust out of view
+          var dust = inhalingDust[i].SetPosition(500, 500, 500);
+        }
         character.Scale(1.0, 1.0, 1.0);
         character.SetPosition(
           character._position[0],
