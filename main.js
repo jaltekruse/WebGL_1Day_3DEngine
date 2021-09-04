@@ -1944,7 +1944,7 @@ class LightPrepassDemo {
   _CreateLights() {
     this._lights = [];
 
-    for (let i = -1; i <= 1; i++) {
+    for (let i = -1; i <= 3; i++) {
       let l = this._renderer.CreateLight('point');
 
       const v = vec3.fromValues(0.5, 0.5, 1.0);
@@ -1957,7 +1957,7 @@ class LightPrepassDemo {
         -Math.random() * 10 - 10);
       */
       const p = vec3.fromValues(
-        -5,
+        -5 + 50 * i,
         15,
         10);
 
@@ -1988,7 +1988,7 @@ class LightPrepassDemo {
         });
     m.SetPosition(0, -2, -10);
     m.RotateX(-Math.PI * 0.5);
-    m.Scale(200, 200, 1);
+    m.Scale(1000, 1000, 1);
 
 
     let background = this._renderer.CreateMeshInstance(
@@ -2002,7 +2002,7 @@ class LightPrepassDemo {
         });
     background.SetPosition(0, -2, -50);
     //m.RotateX(-Math.PI * 0.5);
-    background.Scale(500, 500, 1);
+    background.Scale(5000, 5000, 1);
 
     let x = -1;
     let y = 2;
