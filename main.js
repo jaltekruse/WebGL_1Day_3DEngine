@@ -2031,6 +2031,20 @@ class LightPrepassDemo {
     arms[0].Scale(0.3, 0.3, 0.3);
     this._meshes.push(arms[0]);
 
+
+    nose = this._renderer.CreateMeshInstance(
+        new Sphere(),
+        {
+          shader: 'default',
+          params: {
+            diffuseTexture: 'test-diffuse',
+            normalTexture: 'test-normal',
+          }
+        });
+    nose.SetPosition(x * 3.2 + 0.2, 0, -y * 4 + 0.9);
+    nose.Scale(0.2, 0.2, 0.2);
+    this._meshes.push(nose);
+
     feet[0] = this._renderer.CreateMeshInstance(
         new Sphere(),
         {
@@ -2137,6 +2151,15 @@ class LightPrepassDemo {
         (flying || inhaling ? 1.8 : 0.9)
     );
 
+    nose.SetPosition(
+        currPos[0] +
+        facingDirection *
+        (flying ? 1.5 : (inhaling ? 1.1 : 0.9)),
+        currPos[1],
+        currPos[2] +
+        (flying || inhaling ? 1.8 : 0.9)
+    );
+
     feet[0].SetPosition(
         currPos[0] + 0.0 - armPos[0][0],
         currPos[1]
@@ -2154,14 +2177,15 @@ class LightPrepassDemo {
         var dust = inhalingDust[i];
         var dPos = dust._position;
         dust.SetPosition(
-          dPos[0] - 0.3,
+          dPos[0] - facingDirection * 0.3,
           dPos[1] - ((dPos[1] - currPos[1]) * .1),
-          dPos[2] - ((dPos[2] - currPos[2]) * .1),
+          dPos[2] - facingDirection * ((dPos[2] - currPos[2]) * .1),
         );
         // if it is close to character, generate a new position
-        if (dPos[0] < currPos[0] + 1.0) {
+        if ((facingDirection === 1 && dPos[0] < currPos[0] + 1.0)
+             || (facingDirection === -1 && dPos[0] > currPos[0] - 1.0)) {
           dust.SetPosition(
-              currPos[0] + 1.5 + Math.random() * 3.0,
+              currPos[0] + facingDirection * (1.5 + Math.random() * 3.0),
               currPos[1] + Math.random() * 2.5,
               currPos[2] + Math.random() * 2.5 + inhalingPosShift,
           );
@@ -2199,9 +2223,12 @@ class LightPrepassDemo {
 }
 
 var moveLeft, moveRight, jumping, flying, ducking, inhaling;
+// 1 for right, -1 for left
+var facingDirection = 1;
 var yVelocity = 0;
 var xVelocity = 0;
 var character;
+var nose;
 var arms = [];
 var feet = []
 var inhalingDust = [];
@@ -2219,6 +2246,7 @@ function keyPush(evt) {
         xVelocity = inhaling ? -0.2 : -0.4;
         armSwing = 0.05;
         moveLeft = true;
+        facingDirection = -1;
       }
       break;
     case 87: // W  (up in wasd)
@@ -2228,6 +2256,7 @@ function keyPush(evt) {
         xVelocity = inhaling ? 0.2 : 0.4;
         armSwing = 0.05;
         moveRight = true;
+        facingDirection = 1;
       }
       break;
     case 83: // S  (down in wasd)
@@ -2311,6 +2340,8 @@ function keyUp(evt) {
     case 74: // K
       if (inhaling) {
         inhaling = false;
+        if (moveLeft) xVelocity = inhaling ? -0.2 : -0.4;
+        if (moveRight) xVelocity = inhaling ? 0.2 : 0.4;
 
         for (var i = 0; i < inhalingDust.length; i++) { // move the dust out of view
           var dust = inhalingDust[i].SetPosition(500, 500, 500);
