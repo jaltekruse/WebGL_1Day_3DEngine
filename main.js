@@ -1947,7 +1947,7 @@ class LightPrepassDemo {
     for (let i = -1; i <= 3; i++) {
       let l = this._renderer.CreateLight('point');
 
-      const v = vec3.fromValues(0.5, 0.5, 1.0);
+      const v = vec3.fromValues(0.5, 0.5, 0.1);
       vec3.normalize(v, v);
 
       /*
@@ -1957,9 +1957,9 @@ class LightPrepassDemo {
         -Math.random() * 10 - 10);
       */
       const p = vec3.fromValues(
-        -5 + 50 * i,
+        -5 + 90 * i,
         15,
-        10);
+        -30);
 
       l.SetColour(v[0], v[1], v[2]);
       l.SetPosition(p[0], p[1], p[2]);
