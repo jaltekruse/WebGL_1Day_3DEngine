@@ -2155,9 +2155,9 @@ class LightPrepassDemo {
         currPos[0] +
         facingDirection *
         (flying ? 1.5 : (inhaling ? 1.1 : 0.9)),
-        currPos[1],
+        currPos[1] + 0.2,
         currPos[2] +
-        (flying || inhaling ? 1.8 : 0.9)
+        (flying || inhaling ? 1.2 : 0.9)
     );
 
     feet[0].SetPosition(
