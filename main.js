@@ -2018,6 +2018,19 @@ class LightPrepassDemo {
     character.SetPosition(x * 4, 0, -y * 4);
     this._meshes.push(character);
 
+    enemies = [];
+    enemies.push(this._renderer.CreateMeshInstance(
+        new Sphere(),
+        {
+          shader: 'default',
+          params: {
+            diffuseTexture: 'test-diffuse',
+            normalTexture: 'test-normal',
+          }
+        }));
+    enemies[0].SetPosition(x * 4 + 10, 0, -y * 4);
+    this._meshes.push(enemies[0]);
+
     arms[0] = this._renderer.CreateMeshInstance(
         new Sphere(),
         {
@@ -2187,6 +2200,10 @@ class LightPrepassDemo {
 
     m.SetPosition(currPos[0], currPos[1], currPos[2]);
 
+    const currEnemyPos = enemies[0]._position;
+    currEnemyPos[0] -= 0.1;
+    enemies[0].SetPosition(currEnemyPos[0], currEnemyPos[1], currEnemyPos[2]);
+
     // move the inhaling dust
     if (inhaling) {
       for (var i = 0; i < inhalingDust.length; i++) {
@@ -2237,6 +2254,8 @@ class LightPrepassDemo {
     this._renderer.Render(timeElapsedS);
   }
 }
+
+var enemies = [];
 
 var moveLeft, moveRight, jumping, flying, ducking, inhaling;
 // 1 for right, -1 for left
@@ -2372,6 +2391,15 @@ function keyUp(evt) {
           character._position[2]);
       }
       break;
+  }
+}
+
+class MovingEntity {
+  constructor() {
+    this._Initialize();
+  }
+
+  _Initialize() {
   }
 }
 
