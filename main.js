@@ -2118,6 +2118,10 @@ class LightPrepassDemo {
         enemy._startInhaling();
       } else if (changeAction < 0.05) {
         enemy._stopInhaling();
+      } else if (changeAction < 0.06) {
+        enemy._stopMoveLeft();
+      } else if (changeAction < 0.07) {
+        enemy._stopMoveRight();
       }
     }
 
@@ -2170,6 +2174,7 @@ function keyPush(evt) {
       character._startMoveRight();
       break;
     case 83: // S  (down in wasd)
+      character._startDucking();
       break;
     case 74: // J
       character._startInhaling();
@@ -2431,7 +2436,7 @@ class MovingEntity {
         currPos[1]
           - (this.flying || this.inhaling ? 1.2 : 0.6),
         currPos[2] +
-        (this.flying || this.inhaling ? 1.8 : (this.ducking ? 0.1 : 0.9))
+        (this.flying || this.inhaling ? 1.2 : (this.ducking ? 0.1 : 0.9))
     );
 
     m.SetPosition(currPos[0], currPos[1], currPos[2]);
@@ -2444,7 +2449,7 @@ class MovingEntity {
         dust.SetPosition(
           dPos[0] - this.facingDirection * 0.3,
           dPos[1] - ((dPos[1] - currPos[1]) * .1),
-          dPos[2] - this.facingDirection * ((dPos[2] - currPos[2]) * .1),
+          dPos[2] - ((dPos[2] - currPos[2]) * .1),
         );
         // if it is close to character, generate a new position
         if ((this.facingDirection === 1 && dPos[0] < currPos[0] + 1.0)
