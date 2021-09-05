@@ -1944,7 +1944,7 @@ class LightPrepassDemo {
   _CreateLights() {
     this._lights = [];
 
-    for (let i = -1; i <= 3; i++) {
+    for (let i = -1; i <= 10; i++) {
       let l = this._renderer.CreateLight('point');
 
       const v = vec3.fromValues(1.0, 1.0, 1.0);
@@ -2004,6 +2004,14 @@ class LightPrepassDemo {
     //m.RotateX(-Math.PI * 0.5);
     background.Scale(5000, 5000, 1);
 
+    character = this._CreateMovingEntity();
+
+    enemies[0] = this._CreateMovingEntity();
+
+    enemies[0]._startMoveRight();
+  }
+
+  _CreateMovingEntity() {
     let x = -1;
     let y = 2;
     var body = this._renderer.CreateMeshInstance(
@@ -2017,19 +2025,6 @@ class LightPrepassDemo {
         });
     body.SetPosition(x * 4, 0, -y * 4);
     this._meshes.push(body);
-
-    enemies = [];
-    enemies.push(this._renderer.CreateMeshInstance(
-        new Sphere(),
-        {
-          shader: 'default',
-          params: {
-            diffuseTexture: 'test-diffuse',
-            normalTexture: 'test-normal',
-          }
-        }));
-    enemies[0].SetPosition(x * 4 + 10, 0, -y * 4);
-    this._meshes.push(enemies[0]);
 
     var arms = [];
     arms[0] = this._renderer.CreateMeshInstance(
@@ -2089,8 +2084,7 @@ class LightPrepassDemo {
       dust.Scale(Math.random() * 0.3, 0.01, Math.random() * 0.3);
       inhalingDust.push(dust);
     }
-
-    character = new MovingEntity(body, arms, feet, nose, inhalingDust);
+    return new MovingEntity(body, arms, feet, nose, inhalingDust);
   }
 
   _RAF() {
@@ -2109,6 +2103,23 @@ class LightPrepassDemo {
     const timeElapsedS = timeElapsed * 0.001;
 
     character._Step(timeElapsed);
+
+    for (var i = 0; i < enemies.length; i++) {
+      var enemy = enemies[i];
+      enemy._Step(timeElapsed);
+      var changeAction = Math.random();
+      if (changeAction < 0.01) {
+        enemy._startMoveLeft();
+      } else if (changeAction < 0.02) {
+        enemy._startMoveRight();
+      } else if (changeAction < 0.03) {
+        enemy._jump();
+      } else if (changeAction < 0.04) {
+        enemy._startInhaling();
+      } else if (changeAction < 0.05) {
+        enemy._stopInhaling();
+      }
+    }
 
     // TODO DELETE
     for (let l of this._lights) {
@@ -2424,11 +2435,6 @@ class MovingEntity {
     );
 
     m.SetPosition(currPos[0], currPos[1], currPos[2]);
-
-    // TODO THIS GETS MOVED
-    //const currEnemyPos = enemies[0]._position;
-    //currEnemyPos[0] -= 0.1;
-    //enemies[0].SetPosition(currEnemyPos[0], currEnemyPos[1], currEnemyPos[2]);
 
     // move the inhaling dust
     if (this.inhaling) {
