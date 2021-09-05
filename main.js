@@ -2143,13 +2143,17 @@ class LightPrepassDemo {
       }
     }
 
-    if (flying && armFlapFloating !== 0) {
+    if (flying) {
 
       if (armPos[0][1] > 0.3 && armFlapFloating > 0) {
         armFlapFloating = -0.01;
       }
       armPos[0][1] += armFlapFloating;
-      armFlapFloating -= gravity * 0.1;
+      // make arms fly backwards wwhile they flap up
+      armPos[0][0] = -1 * facingDirection * 0.2;
+      if (armFlapFloating !== 0) {
+        armFlapFloating -= gravity * 0.1;
+      }
       console.log(armPos, currPos);
       if (armPos[0][1] < -0.2) {
           armFlapFloating = 0;
@@ -2321,8 +2325,6 @@ function keyPush(evt) {
         gravity = 0.05;
         yVelocity = 0.7;
         armFlapFloating = 0.2;
-        // make arms fly backwards wwhile they flap up
-        armPos[0][0] = -1 * facingDirection * 0.2;
         flying = true;
       } else if (ducking) {
         // TODO - sliding kick
