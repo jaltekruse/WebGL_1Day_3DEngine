@@ -2006,7 +2006,7 @@ class LightPrepassDemo {
 
     let x = -1;
     let y = 2;
-    character = this._renderer.CreateMeshInstance(
+    var body = this._renderer.CreateMeshInstance(
         new Sphere(),
         {
           shader: 'default',
@@ -2015,8 +2015,8 @@ class LightPrepassDemo {
             normalTexture: 'test-normal',
           }
         });
-    character.SetPosition(x * 4, 0, -y * 4);
-    this._meshes.push(character);
+    body.SetPosition(x * 4, 0, -y * 4);
+    this._meshes.push(body);
 
     enemies = [];
     enemies.push(this._renderer.CreateMeshInstance(
@@ -2031,6 +2031,7 @@ class LightPrepassDemo {
     enemies[0].SetPosition(x * 4 + 10, 0, -y * 4);
     this._meshes.push(enemies[0]);
 
+    var arms = [];
     arms[0] = this._renderer.CreateMeshInstance(
         new Sphere(),
         {
@@ -2044,8 +2045,7 @@ class LightPrepassDemo {
     arms[0].Scale(0.3, 0.3, 0.3);
     this._meshes.push(arms[0]);
 
-
-    nose = this._renderer.CreateMeshInstance(
+    var nose = this._renderer.CreateMeshInstance(
         new Sphere(),
         {
           shader: 'default',
@@ -2058,6 +2058,7 @@ class LightPrepassDemo {
     nose.Scale(0.2, 0.2, 0.2);
     this._meshes.push(nose);
 
+    var feet = [];
     feet[0] = this._renderer.CreateMeshInstance(
         new Sphere(),
         {
@@ -2071,6 +2072,7 @@ class LightPrepassDemo {
     feet[0].Scale(0.3, 0.2, 0.3);
     this._meshes.push(feet[0]);
 
+    var inhalingDust = [];
     const box = new Box();
     for (var i = 0; i < 10; i++) {
       var dust = this._renderer.CreateMeshInstance(
@@ -2087,6 +2089,8 @@ class LightPrepassDemo {
       dust.Scale(Math.random() * 0.3, 0.01, Math.random() * 0.3);
       inhalingDust.push(dust);
     }
+
+    character = new MovingEntity(body, arms, feet, nose, inhalingDust);
   }
 
   _RAF() {
@@ -2104,130 +2108,9 @@ class LightPrepassDemo {
   _Step(timeElapsed) {
     const timeElapsedS = timeElapsed * 0.001;
 
-    let m = character;
-    //m.RotateY(timeElapsedS);
-    const currPos = m._position;
-    currPos[0] += xVelocity;
+    character._Step(timeElapsed);
 
-    // ground friction
-    if (!moveLeft && xVelocity < 0 ) {
-        xVelocity += groundFriction;
-        if (xVelocity > 0) {
-          armSwing = 0;
-          xVelocity = 0;
-        }
-    }
-    if (!moveRight && xVelocity > 0 ) {
-      xVelocity -= groundFriction;
-      if (xVelocity < 0) {
-        armSwing = 0;
-        xVelocity = 0;
-      }
-    }
-
-    // TODO - terminal velocity, which is lower when puffed up
-    if (yVelocity != 0) {
-        currPos[1] += yVelocity;
-        yVelocity -= gravity;
-    }
-    // hit the ground after jumping?
-    if (yVelocity != 0 && currPos[1] < 0) {
-        yVelocity = 0;
-        // if inhaling we want to stay big
-        if (inhaling) {
-            currPos[1] = inhalingPosShift;
-        } else {
-            character.Scale(1.0, 1.0, 1.0);
-            currPos[1] = 0;
-        }
-        jumping = false;
-        flying = false;
-        gravity = 0.1;
-    }
-
-    if ( !flying && !jumping && (moveLeft || moveRight)) {
-      armPos[0][0] += armSwing;
-
-      if (armPos[0][0] > 0.2) {
-        armSwing = -0.05
-      }
-      else if (armPos[0][0] < -0.2) {
-        armSwing = 0.05
-      }
-    }
-
-    if (flying) {
-
-      if (armPos[0][1] > 0.3 && armFlapFloating > 0) {
-        armFlapFloating = -0.01;
-      }
-      armPos[0][1] += armFlapFloating;
-      // make arms fly backwards wwhile they flap up
-      armPos[0][0] = -1 * facingDirection * 0.2;
-      if (armFlapFloating !== 0) {
-        armFlapFloating -= gravity * 0.1;
-      }
-      console.log(armPos, currPos);
-      if (armPos[0][1] < -0.2) {
-          armFlapFloating = 0;
-      }
-    }
-
-    // arms animation
-    arms[0].SetPosition(
-        currPos[0] + 0.0 + armPos[0][0],
-        currPos[1] + 0.3 + armPos[0][1],
-        currPos[2] +
-        (flying || inhaling ? 1.8 : 0.9)
-    );
-
-    nose.SetPosition(
-        currPos[0] +
-        facingDirection *
-        (flying ? 1.5 : (inhaling ? 1.1 : 0.9)),
-        currPos[1] + 0.2,
-        currPos[2] +
-        (flying || inhaling ? 1.2 : 0.9)
-    );
-
-    feet[0].SetPosition(
-        currPos[0] + 0.0 - armPos[0][0],
-        currPos[1]
-          - (flying || inhaling ? 1.2 : 0.6),
-        currPos[2] +
-        (flying || inhaling ? 1.8 : (ducking ? 0.1 : 0.9))
-    );
-
-    m.SetPosition(currPos[0], currPos[1], currPos[2]);
-
-    const currEnemyPos = enemies[0]._position;
-    currEnemyPos[0] -= 0.1;
-    enemies[0].SetPosition(currEnemyPos[0], currEnemyPos[1], currEnemyPos[2]);
-
-    // move the inhaling dust
-    if (inhaling) {
-      for (var i = 0; i < inhalingDust.length; i++) {
-        var dust = inhalingDust[i];
-        var dPos = dust._position;
-        dust.SetPosition(
-          dPos[0] - facingDirection * 0.3,
-          dPos[1] - ((dPos[1] - currPos[1]) * .1),
-          dPos[2] - facingDirection * ((dPos[2] - currPos[2]) * .1),
-        );
-        // if it is close to character, generate a new position
-        if ((facingDirection === 1 && dPos[0] < currPos[0] + 1.0)
-             || (facingDirection === -1 && dPos[0] > currPos[0] - 1.0)) {
-          dust.SetPosition(
-              currPos[0] + facingDirection * (1.5 + Math.random() * 3.0),
-              currPos[1] + Math.random() * 2.5,
-              currPos[2] + Math.random() * 2.5 + inhalingPosShift,
-          );
-        }
-        dust.RotateX(timeElapsed);
-        dust.RotateY(timeElapsed);
-      }
-    }
-
+    // TODO DELETE
     for (let l of this._lights) {
       l.acc += timeElapsed * 0.001 * l.accSpeed;
 
@@ -2241,116 +2124,47 @@ class LightPrepassDemo {
     //this._camera.SetPosition(0, 20, 10);
     //this._camera.SetTarget(0, 0, -20);
     this._renderer._camera.SetPosition(
-        character._position[0],
-        character._position[1] + 3 +
-        (inhaling ? -inhalingPosShift : (ducking ? duckingPosShift : 0)),
-        character._position[2] + 15);
+        character.body._position[0],
+        character.body._position[1] + 3 +
+        (character.inhaling ? -inhalingPosShift : (character.ducking ? duckingPosShift : 0)),
+        character.body._position[2] + 15);
     this._renderer._camera.SetTarget(
-        character._position[0],
-        character._position[1] +
-        (inhaling ? -inhalingPosShift : (ducking ? duckingPosShift : 0)),
-        character._position[2]);
+        character.body._position[0],
+        character.body._position[1] +
+        (character.inhaling ? -inhalingPosShift : (character.ducking ? duckingPosShift : 0)),
+        character.body._position[2]);
 
     this._renderer.Render(timeElapsedS);
   }
 }
 
 var enemies = [];
-
-var moveLeft, moveRight, jumping, flying, ducking, inhaling;
-// 1 for right, -1 for left
-var facingDirection = 1;
-var yVelocity = 0;
-var xVelocity = 0;
 var character;
-var nose;
-var arms = [];
-var feet = []
-var inhalingDust = [];
-// 2D array, storing x and y offset from neutral in middle of body
-var armPos = [[0.0, 0.0], [0.0, 0.0]];
-var armSwing = 0.0;
-// a yVelocity for arms flapping while floating/flying
-var armFlapFloating = 0.0;
+
 var groundFriction = 0.05;
 var gravity = 0.1;
+var flyingGravity = 0.05;
 const duckingPosShift = 0.5;
 const inhalingPosShift = 1.0;
+const inhalingWalkingSpeed = 0.2;
+const walkingSpeed = 0.4;
 function keyPush(evt) {
   switch (evt.keyCode) {
     case 65: // A  (left in wasd)
-      if (!moveLeft && !ducking) {
-        xVelocity = inhaling ? -0.2 : -0.4;
-        armSwing = 0.05;
-        moveLeft = true;
-        facingDirection = -1;
-      }
+      character._startMoveLeft();
       break;
     case 87: // W  (up in wasd)
       break;
     case 68: // D  (right in wasd)
-      if (!moveRight && !ducking) {
-        xVelocity = inhaling ? 0.2 : 0.4;
-        armSwing = 0.05;
-        moveRight = true;
-        facingDirection = 1;
-      }
+      character._startMoveRight();
       break;
     case 83: // S  (down in wasd)
-      if (!jumping && !flying && !ducking && !inhaling) {
-        ducking = true;
-        moveLeft = moveRight = false;
-        character.Scale(1.0, 0.3, 1.0);
-        // TODO - make it so this doesn't impact the camera
-        character.SetPosition(character._position[0], character._position[1] - duckingPosShift, character._position[2]);
-      }
       break;
     case 74: // J
-      // deflate and go back to original fall speed
-      if (flying) {
-        flying = false;
-        character.Scale(1.0, 1.0, 1.0);
-        gravity = 0.1;
-      } else {
-        if (!inhaling && !ducking) {
-          inhaling = true;
-          // walk slower while inhaling
-          if (xVelocity !=0) xVelocity *= 0.5;
-          const charPos = character._position;
-
-          // place the dust particles to show inhaling
-          for (var i = 0; i < inhalingDust.length; i++) {
-            inhalingDust[i].SetPosition(
-              charPos[0] + 1.5 + Math.random() * 3.0,
-              charPos[1] + Math.random() * 2.5,
-              charPos[2] + Math.random() * 2.5,
-            );
-            inhalingDust[i].RotateX(Math.random());
-            inhalingDust[i].RotateY(Math.random());
-          }
-
-          character.Scale(1.2, 1.8, 1.8);
-          character.SetPosition(
-            charPos[0],
-            charPos[1] + inhalingPosShift,
-            charPos[2]);
-        }
-      }
+      character._startInhaling();
       break;
     case 75: // K
-      // second jump, puff up and start flying
-      if (jumping) {
-        character.Scale(1.8, 1.8, 1.8);
-        gravity = 0.05;
-        yVelocity = 0.7;
-        armFlapFloating = 0.2;
-        flying = true;
-      } else if (ducking) {
-        // TODO - sliding kick
-      } else if (!inhaling) {
-        yVelocity = 1.5;
-        jumping = true;
-      }
+      character._jump();
       break;
     case 76: // L
       break;
@@ -2360,46 +2174,285 @@ function keyPush(evt) {
 function keyUp(evt) {
   switch (evt.keyCode) {
     case 65: // A  (left in wasd)
-      moveLeft = false;
+      character._stopMoveLeft();
       break;
     case 87: // W  (up in wasd)
       // cannot cancel jump with keyup
       break;
     case 68: // D  (right in wasd)
-      moveRight = false;
+      character._stopMoveRight();
       break;
     case 83: // S  (down in wasd)
-      if (!jumping && !flying && ducking) {
-        ducking = false;
-        character.Scale(1.0, 1.0, 1.0);
-        character.SetPosition(character._position[0], character._position[1] + duckingPosShift, character._position[2]);
-      }
+      character._stopDucking();
       break;
     case 74: // K
-      if (inhaling) {
-        inhaling = false;
-        if (moveLeft) xVelocity = inhaling ? -0.2 : -0.4;
-        if (moveRight) xVelocity = inhaling ? 0.2 : 0.4;
-
-        for (var i = 0; i < inhalingDust.length; i++) { // move the dust out of view
-          var dust = inhalingDust[i].SetPosition(500, 500, 500);
-        }
-        character.Scale(1.0, 1.0, 1.0);
-        character.SetPosition(
-          character._position[0],
-          character._position[1] - inhalingPosShift,
-          character._position[2]);
-      }
+      character._stopInhaling();
       break;
   }
 }
 
 class MovingEntity {
-  constructor() {
-    this._Initialize();
+  constructor(bodyMesh, armMeshes, feetMeshes, noseMesh, inhalingDustMeshes) {
+    this.body = bodyMesh;
+
+    this.moveLeft = this.moveRight = this.jumping = this.flying = this.ducking = this.inhaling = false;
+    // 1 for right, -1 for left
+    this.facingDirection = 1;
+    this.yVelocity = 0;
+    this.xVelocity = 0;
+    this.nose = noseMesh;
+    this.arms = armMeshes;
+    this.feet = feetMeshes;
+    this.inhalingDust = inhalingDustMeshes;
+    // 2D array, storing x and y offset from neutral in middle of body
+    this.armPos = [[0.0, 0.0], [0.0, 0.0]];
+    this.armSwing = 0.0;
+    // a yVelocity for arms flapping while floating/flying
+    this.armFlapFloating = 0.0;
   }
 
   _Initialize() {
+  }
+
+  _startMoveLeft() {
+    if (!this.moveLeft && !this.ducking) {
+      this.xVelocity = this.inhaling ? -inhalingWalkingSpeed  : -walkingSpeed;
+      this.armSwing = 0.05;
+      this.moveLeft = true;
+      this.facingDirection = -1;
+    }
+  }
+
+  _stopMoveLeft() {
+    this.moveLeft = false;
+  }
+
+  _startMoveRight() {
+    if (!this.moveRight && !this.ducking) {
+      this.xVelocity = this.inhaling ? inhalingWalkingSpeed  : walkingSpeed;
+      this.armSwing = 0.05;
+      this.moveRight = true;
+      this.facingDirection = 1;
+    }
+  }
+
+  _stopMoveRight() {
+    this.moveRight = false;
+  }
+
+  _startDucking() {
+    if (!this.jumping && !this.flying && !this.ducking && !this.inhaling) {
+      this.ducking = true;
+      this.moveLeft = this.moveRight = false;
+      this.body.Scale(1.0, 0.3, 1.0);
+      // TODO - make it so this doesn't impact the camera
+      this.body.SetPosition(
+        this.body._position[0], this.body._position[1] - duckingPosShift, this.body._position[2]);
+    }
+  }
+
+  _stopDucking() {
+    if (!this.jumping && !this.flying && this.ducking) {
+      this.ducking = false;
+      this.body.Scale(1.0, 1.0, 1.0);
+      this.body.SetPosition(
+        this.body._position[0], this.body._position[1] + duckingPosShift, this.body._position[2]);
+    }
+  }
+
+  _startInhaling() {
+    // deflate and go back to original fall speed
+    if (this.flying) {
+      this.flying = false;
+      this.body.Scale(1.0, 1.0, 1.0);
+      // TODO DELETE - set back to normal gravity
+      //gravity = 0.1;
+    } else {
+      if (!this.inhaling && !this.ducking) {
+        this.inhaling = true;
+        // walk slower while inhaling
+        if (this.xVelocity !=0) this.xVelocity *= 0.5;
+        const charPos = this.body._position;
+
+        // place the dust particles to show inhaling
+        for (var i = 0; i < this.inhalingDust.length; i++) {
+          this.inhalingDust[i].SetPosition(
+            charPos[0] + 1.5 + Math.random() * 3.0,
+            charPos[1] + Math.random() * 2.5,
+            charPos[2] + Math.random() * 2.5,
+          );
+          this.inhalingDust[i].RotateX(Math.random());
+          this.inhalingDust[i].RotateY(Math.random());
+        }
+
+        this.body.Scale(1.2, 1.8, 1.8);
+        this.body.SetPosition(
+          charPos[0],
+          charPos[1] + inhalingPosShift,
+          charPos[2]);
+      }
+    }
+  }
+
+  _stopInhaling() {
+    if (this.inhaling) {
+      this.inhaling = false;
+      if (this.moveLeft) this.xVelocity = this.inhaling ? -inhalingWalkingSpeed  : -walkingSpeed;
+      if (this.moveRight) this.xVelocity = this.inhaling ? inhalingWalkingSpeed  : walkingSpeed;
+
+      for (var i = 0; i < this.inhalingDust.length; i++) { // move the dust out of view
+        var dust = this.inhalingDust[i].SetPosition(500, 500, 500);
+      }
+      this.body.Scale(1.0, 1.0, 1.0);
+      this.body.SetPosition(
+        this.body._position[0],
+        this.body._position[1] - inhalingPosShift,
+        this.body._position[2]);
+    }
+  }
+
+  _jump() {
+      // second jump, puff up and start flying
+      if (this.jumping) {
+        this.body.Scale(1.8, 1.8, 1.8);
+        // TODO DELETE - set floating gravity
+        //gravity = 0.05;
+        this.yVelocity = 0.7;
+        this.armFlapFloating = 0.2;
+        this.flying = true;
+      } else if (this.ducking) {
+        // TODO - sliding kick
+      } else if (!this.inhaling) {
+        this.yVelocity = 1.5;
+        this.jumping = true;
+      }
+  }
+
+  // TODO - scale the amounts in this function by timeElapsed
+  _Step(timeElapsed) {
+
+    let m = this.body;
+    const currPos = m._position;
+    currPos[0] += this.xVelocity;
+
+    // ground friction
+    if (!this.moveLeft && this.xVelocity < 0 ) {
+        this.xVelocity += groundFriction;
+        if (this.xVelocity > 0) {
+          this.armSwing = 0;
+          this.xVelocity = 0;
+        }
+    }
+    if (!this.moveRight && this.xVelocity > 0 ) {
+      this.xVelocity -= groundFriction;
+      if (this.xVelocity < 0) {
+        this.armSwing = 0;
+        this.xVelocity = 0;
+      }
+    }
+
+    // TODO - terminal velocity, which should be lower when puffed up
+    if (this.yVelocity != 0) {
+        currPos[1] += this.yVelocity;
+        this.yVelocity -= this.flying ? flyingGravity : gravity;
+    }
+    // hit the ground after jumping?
+    if (this.yVelocity != 0 && currPos[1] < 0) {
+        this.yVelocity = 0;
+        // if inhaling we want to stay big
+        if (this.inhaling) {
+            currPos[1] = inhalingPosShift;
+        } else {
+            this.body.Scale(1.0, 1.0, 1.0);
+            currPos[1] = 0;
+        }
+        this.jumping = false;
+        this.flying = false;
+    }
+
+    if ( !this.flying && !this.jumping && (this.moveLeft || this.moveRight)) {
+      this.armPos[0][0] += this.armSwing;
+
+      if (this.armPos[0][0] > 0.2) {
+        this.armSwing = -0.05
+      }
+      else if (this.armPos[0][0] < -0.2) {
+        this.armSwing = 0.05
+      }
+    }
+
+    if (this.flying) {
+
+      if (this.armPos[0][1] > 0.3 && this.armFlapFloating > 0) {
+        this.armFlapFloating = -0.01;
+      }
+      this.armPos[0][1] += this.armFlapFloating;
+      // make arms fly backwards while they flap up
+      this.armPos[0][0] = -1 * this.facingDirection * 0.2;
+      if (this.armFlapFloating !== 0) {
+        this.armFlapFloating -= gravity * 0.1;
+      }
+      //console.log(armPos, currPos);
+      if (this.armPos[0][1] < -0.2) {
+          this.armFlapFloating = 0;
+      }
+    }
+
+    // arms animation
+    this.arms[0].SetPosition(
+        currPos[0] + 0.0 + this.armPos[0][0],
+        currPos[1] + 0.3 + this.armPos[0][1],
+        currPos[2] +
+        (this.flying || this.inhaling ? 1.8 : 0.9)
+    );
+
+    this.nose.SetPosition(
+        currPos[0] +
+        this.facingDirection *
+        (this.flying ? 1.5 : (this.inhaling ? 1.1 : 0.9)),
+        currPos[1] + 0.2,
+        currPos[2] +
+        (this.flying || this.inhaling ? 1.2 : 0.9)
+    );
+
+    this.feet[0].SetPosition(
+        currPos[0] + 0.0 - this.armPos[0][0],
+        currPos[1]
+          - (this.flying || this.inhaling ? 1.2 : 0.6),
+        currPos[2] +
+        (this.flying || this.inhaling ? 1.8 : (this.ducking ? 0.1 : 0.9))
+    );
+
+    m.SetPosition(currPos[0], currPos[1], currPos[2]);
+
+    // TODO THIS GETS MOVED
+    //const currEnemyPos = enemies[0]._position;
+    //currEnemyPos[0] -= 0.1;
+    //enemies[0].SetPosition(currEnemyPos[0], currEnemyPos[1], currEnemyPos[2]);
+
+    // move the inhaling dust
+    if (this.inhaling) {
+      for (var i = 0; i < this.inhalingDust.length; i++) {
+        var dust = this.inhalingDust[i];
+        var dPos = dust._position;
+        dust.SetPosition(
+          dPos[0] - this.facingDirection * 0.3,
+          dPos[1] - ((dPos[1] - currPos[1]) * .1),
+          dPos[2] - this.facingDirection * ((dPos[2] - currPos[2]) * .1),
+        );
+        // if it is close to character, generate a new position
+        if ((this.facingDirection === 1 && dPos[0] < currPos[0] + 1.0)
+             || (this.facingDirection === -1 && dPos[0] > currPos[0] - 1.0)) {
+          dust.SetPosition(
+              currPos[0] + this.facingDirection * (1.5 + Math.random() * 3.0),
+              currPos[1] + Math.random() * 2.5,
+              currPos[2] + Math.random() * 2.5 + inhalingPosShift,
+          );
+        }
+        dust.RotateX(timeElapsed);
+        dust.RotateY(timeElapsed);
+      }
+    }
   }
 }
 
