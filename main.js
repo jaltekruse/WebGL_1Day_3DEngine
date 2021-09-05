@@ -2425,10 +2425,9 @@ class MovingEntity {
     this.nose.SetPosition(
         currPos[0] +
         this.facingDirection *
-        (this.flying ? 1.5 : (this.inhaling ? 1.1 : 0.9)),
+        (this.flying ? 1.7 : (this.inhaling ? 1.1 : 0.9)),
         currPos[1] + 0.2,
-        currPos[2] +
-        (this.flying || this.inhaling ? 1.2 : 0.9)
+        currPos[2]
     );
 
     this.feet[0].SetPosition(
