@@ -2293,7 +2293,7 @@ class MovingEntity {
         // place the dust particles to show inhaling
         for (var i = 0; i < this.inhalingDust.length; i++) {
           this.inhalingDust[i].SetPosition(
-            charPos[0] + 1.5 + Math.random() * 3.0,
+            charPos[0] + this.facingDirection * (1.5 + Math.random() * 3.0),
             charPos[1] + Math.random() * 2.5,
             charPos[2] + Math.random() * 2.5,
           );
@@ -2367,9 +2367,9 @@ class MovingEntity {
       }
     }
 
+    currPos[1] += this.yVelocity;
     // TODO - terminal velocity, which should be lower when puffed up
-    if (this.yVelocity != 0) {
-        currPos[1] += this.yVelocity;
+    if (this.yVelocity != 0 && this.yVelocity > (this.flying ? -1.0 : -1.5) ) {
         this.yVelocity -= this.flying ? flyingGravity : gravity;
     }
     // hit the ground after jumping?
@@ -2445,14 +2445,18 @@ class MovingEntity {
       for (var i = 0; i < this.inhalingDust.length; i++) {
         var dust = this.inhalingDust[i];
         var dPos = dust._position;
+        vec3.lerp(dPos, dPos, currPos, 0.1);
+        /*
         dust.SetPosition(
           dPos[0] - this.facingDirection * 0.3,
           dPos[1] - ((dPos[1] - currPos[1]) * .1),
           dPos[2] - ((dPos[2] - currPos[2]) * .1),
         );
+        */
+        dust.SetPosition(dPos[0], dPos[1], dPos[2]);
         // if it is close to character, generate a new position
-        if ((this.facingDirection === 1 && dPos[0] < currPos[0] + 1.0)
-             || (this.facingDirection === -1 && dPos[0] > currPos[0] - 1.0)) {
+        var dist = vec3.distance(currPos, dPos);
+        if (dist < 3.0 || dist > 8.0) {
           dust.SetPosition(
               currPos[0] + this.facingDirection * (1.5 + Math.random() * 3.0),
               currPos[1] + Math.random() * 2.5,
